@@ -19,6 +19,7 @@ def saturate2(inp,lolimit,hilimit):
 def saturate(inp,limit):
   # limit quantity to [-limit,limit]
   out = saturate2(inp, -limit, limit)
+  return out
 
 class Rospid:
 

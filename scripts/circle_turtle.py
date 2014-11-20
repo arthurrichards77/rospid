@@ -18,6 +18,8 @@ def pose_callback(data):
   radius = sqrt(dx*dx + dy*dy)
   # PID control for constant radius
   u = steering_pid.update(radius, 2.5, rospy.get_rostime().to_sec())
+  # saturate
+  u = rospidlib.saturate(u,0.3)
   # command
   v = Velocity()
   v.linear = 0.3
