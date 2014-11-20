@@ -1,4 +1,7 @@
 import rospy
+import roslib
+roslib.load_manifest('rospid')
+from std_msgs.msg import Float32
 
 def saturate2(inp,lolimit,hilimit):
   # limit quantity to [lolimit,hilimit]
@@ -42,6 +45,11 @@ class Rospid:
     # option to disable integral action
     self.freeze_integrator_flag = False
 
+    # create gain update subscribers
+    self.sub_kp = rospy.Subscriber(self.namespace + "/tune_gains/kp", Float32, self.tune_kp_callback)
+    self.sub_ki = rospy.Subscriber(self.namespace + "/tune_gains/ki", Float32, self.tune_ki_callback)
+    self.sub_kd = rospy.Subscriber(self.namespace + "/tune_gains/kd", Float32, self.tune_kd_callback)
+    
     # closing message
     rospy.loginfo('PID ready in %s', self.namespace)
 
@@ -111,10 +119,20 @@ class Rospid:
     # return the new control value
     return u
 
-  def refresh_gains(self):
+  def tune_kp_callback(self, data):
     # get new gains from ROS parameters
-    # not implemented yet
-    pass
+    self.kp = data.data
+    rospy.logwarn('Updated kp: %f', self.kp)
+
+  def tune_ki_callback(self, data):
+    # get new gains from ROS parameters
+    self.ki = data.data
+    rospy.logwarn('Updated ki: %f', self.ki)
+
+  def tune_kd_callback(self, data):
+    # get new gains from ROS parameters
+    self.kd = data.data
+    rospy.logwarn('Updated kd: %f', self.kd)
 
   def reset_integrator(self, new_value):
     # reset integrator value
