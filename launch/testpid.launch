@@ -1,0 +1,15 @@
+<launch>
+
+  <group ns="turtle_control">
+    
+    <node pkg="rospid" name="testpid" type="testpid.py">
+      <param name="steering/init_gains/kp" type="double" value="0.31" />
+      <param name="steering/init_gains/ki" type="double" value="0.0" />
+      <param name="steering/init_gains/kd" type="double" value="0.35" />
+    </node>
+
+    <node pkg="turtlesim" name="turtlesim" type="turtlesim_node" />
+
+  </group>
+
+</launch>

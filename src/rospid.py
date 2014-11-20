@@ -1,33 +1,34 @@
 import rospy
 
-def saturate(inp,limit):
-  # limit quantity to [-limit,limit]
-  out = inp
-  if inp>limit:
-    out=limit
-  elif inp<-limit:
-    out = -limit
-  return out
-
 def saturate2(inp,lolimit,hilimit):
   # limit quantity to [lolimit,hilimit]
+  if lolimit >= hilimit:
+    rospy.logwarn('No room between limits [%f, %f]', lolimit, hilimit)
   out = inp
   if inp>hilimit:
     out=hilimit
+    rospy.logwarn('Clamping %f at upper limit %f', inp, hilimit)
   elif inp<lolimit:
     out = lolimit
+    rospy.logwarn('Clamping %f at lower limit %f', inp, lolimit)
   return out
 
-class rospid:
+def saturate(inp,limit):
+  # limit quantity to [-limit,limit]
+  out = saturate2(inp, -limit, limit)
+
+class Rospid:
 
   def __init__(self, kp, ki, kd, namespace):
     # constructor
     # namespace is location for tuning parameters
 
+    # store own namespace
+    self.namespace = rospy.resolve_name(namespace)
+    rospy.loginfo('Setting up new PID controller in %s', self.namespace)
+
     # store default gains
-    self.kp = kp
-    self.ki = ki
-    self.kd = kd
+    self.init_gains(kp, ki, kd)
 
     # stores for last input values for differentiating
     self.last_t = 0.0
@@ -41,8 +42,35 @@ class rospid:
     # option to disable integral action
     self.freeze_integrator_flag = False
 
-    # store own namespace
-    self.namespace = namespace
+    # closing message
+    rospy.loginfo('PID ready in %s', self.namespace)
+
+  def init_gains(self, kp, ki, kd):
+    # initialize gains from various sources
+
+    # just start by using given ones
+    self.kp = kp
+    self.ki = ki
+    self.kd = kd
+    rospy.loginfo('PID %s given gains kp=%f, ki=%f, kd=%f', self.namespace, self.kp, self.ki, self.kd)
+
+    # check for parameter overrides
+    gain_override_flag=False
+    # proportional
+    if rospy.has_param(self.namespace + "/init_gains/kp"):
+      self.kp = rospy.get_param(self.namespace + "/init_gains/kp")
+      gain_override_flag=True
+    # integral
+    if rospy.has_param(self.namespace + "/init_gains/ki"):
+      self.ki = rospy.get_param(self.namespace + "/init_gains/ki")
+      gain_override_flag=True
+    # derivative
+    if rospy.has_param(self.namespace + "/init_gains/kd"):
+      self.kd = rospy.get_param(self.namespace + "/init_gains/kd")
+      gain_override_flag=True
+    # report override
+    if gain_override_flag:
+      rospy.logwarn('PID %s got gains from parameters kp=%f, ki=%f, kd=%f', self.namespace, self.kp, self.ki, self.kd)
 
   def update(self, y, r, t):
     # return new output given new inputs
@@ -83,12 +111,12 @@ class rospid:
     # return the new control value
     return u
 
-  def refreshgains(self):
+  def refresh_gains(self):
     # get new gains from ROS parameters
     # not implemented yet
     pass
 
-  def resetintegrator(self, new_value):
+  def reset_integrator(self, new_value):
     # reset integrator value
     self.integ = new_value
 
