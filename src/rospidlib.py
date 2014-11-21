@@ -102,8 +102,8 @@ class Rospid:
         # add to integrator using trapezium rule
         self.integ = self.integ + self.ki*0.5*delta_t*(self.last_e + r-y)
 
-        # add integral term to control
-        u = u + self.integ        
+      # add integral term to control
+      u = u + self.integ        
 
       # find derivatives using finite difference
       dydt = (y - self.last_y)/delta_t
@@ -120,30 +120,37 @@ class Rospid:
     # return the new control value
     return u
 
+  # callbacks for online tuning
+
   def tune_kp_callback(self, data):
     # get new gains from ROS parameters
     self.kp = data.data
-    rospy.logwarn('Updated kp: %f', self.kp)
+    rospy.logwarn('PID %s updated kp: %f', self.namespace, self.kp)
 
   def tune_ki_callback(self, data):
     # get new gains from ROS parameters
     self.ki = data.data
-    rospy.logwarn('Updated ki: %f', self.ki)
+    rospy.logwarn('PID %s updated ki: %f', self.namespace, self.ki)
 
   def tune_kd_callback(self, data):
     # get new gains from ROS parameters
     self.kd = data.data
-    rospy.logwarn('Updated kd: %f', self.kd)
+    rospy.logwarn('PID %s updated kd: %f', self.namespace, self.kd)
+
+  # utilities for manually resetting and freezing integrator
 
   def reset_integrator(self, new_value):
     # reset integrator value
     self.integ = new_value
+    rospy.logwarn('PID %s reset integrator to %f', self.namespace, self.integ)
 
   def freeze_integrator(self):
     self.freeze_integrator_flag = True
+    rospy.logwarn('PID %s frozen integrator at %f', self.namespace, self.integ)
 
   def enable_integrator(self):
     self.freeze_integrator_flag = False
+    rospy.logwarn('PID %s enabled integrator at %f', self.namespace, self.integ)
 
   def read_integrator(self):
     return(self.integ)
