@@ -10,6 +10,7 @@
   <url>http://ros.org/wiki/rospid</url>
   <depend package="rospy"/>
   <depend package="turtlesim"/>
+  <depend package="geometry_msgs"/>
   
 </package>
 
