@@ -145,12 +145,14 @@ class Rospid:
     rospy.logwarn('PID %s reset integrator to %f', self.namespace, self.integ)
 
   def freeze_integrator(self):
+    if not self.freeze_integrator_flag:
+      rospy.logwarn('PID %s frozen integrator at %f', self.namespace, self.integ)
     self.freeze_integrator_flag = True
-    rospy.logwarn('PID %s frozen integrator at %f', self.namespace, self.integ)
 
   def enable_integrator(self):
+    if self.freeze_integrator_flag:
+      rospy.logwarn('PID %s enabled integrator at %f', self.namespace, self.integ)
     self.freeze_integrator_flag = False
-    rospy.logwarn('PID %s enabled integrator at %f', self.namespace, self.integ)
 
   def read_integrator(self):
     return(self.integ)
