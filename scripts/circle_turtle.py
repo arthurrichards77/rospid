@@ -3,12 +3,13 @@ import rospy
 import roslib
 roslib.load_manifest('rospid')
 import rospidlib
-from turtlesim.msg import Pose, Velocity
+from turtlesim.msg import Pose
+from geometry_msgs.msg import Twist
 from math import sqrt
 
 rospy.init_node('testpid')
 steering_pid = rospidlib.Rospid(0.15,0.0,0.22,'~steering')
-vel_pub = rospy.Publisher('turtle1/command_velocity', Velocity)
+vel_pub = rospy.Publisher('turtle1/cmd_vel', Twist)
 
 def pose_callback(data):
   # centre on 5,7
@@ -21,9 +22,9 @@ def pose_callback(data):
   # saturate
   u = rospidlib.saturate(u,0.3)
   # command
-  v = Velocity()
-  v.linear = 0.3
-  v.angular = -u
+  v = Twist()
+  v.linear.x = 0.3
+  v.angular.z = -u
   # send it
   vel_pub.publish(v)
   # tell the world
