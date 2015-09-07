@@ -1,6 +1,4 @@
 import rospy
-import roslib
-roslib.load_manifest('rospid')
 from std_msgs.msg import Float32
 
 def saturate2(inp,lolimit,hilimit):

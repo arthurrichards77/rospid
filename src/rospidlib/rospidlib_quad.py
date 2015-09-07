@@ -1,7 +1,5 @@
 import rospy
-import roslib
 import math
-roslib.load_manifest('rospid')
 from std_msgs.msg import Float32
 from geometry_msgs.msg import TransformStamped, Point, Twist
 from tf.transformations import euler_from_quaternion
