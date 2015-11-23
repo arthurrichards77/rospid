@@ -129,6 +129,10 @@ class RospidQuad:
     self.e_local.y = self.e_global.x*math.sin(y_yaw) - self.e_global.y*math.cos(y_yaw)
     self.e_local.z = self.e_global.z
     e_yaw = r_yaw - y_yaw
+    if e_yaw > math.pi:
+        e_yaw = e_yaw-2*math.pi
+    elif e_yaw < -math.pi:
+        e_yaw = e_yaw+2*math.pi
 
     # start with proportional gain
     u = Twist()
